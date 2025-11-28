@@ -1,0 +1,448 @@
+<div class="layout">
+  <!-- Menú lateral -->
+  <aside class="sidebar" [class.horizontal]="vm.selectedSection === SECTIONS.CERTIFICADOS">
+    <img src="logo.png" alt="Logo de la empresa" class="logo" />
+    <h2>Menú</h2>
+    <ul class="menu-list">
+      <li>
+        <button (click)="changeSection(SECTIONS.EMPLEADOS)">
+          👥 Empleados
+        </button>
+      </li>
+      <li>
+        <button (click)="changeSection(SECTIONS.CERTIFICADOS)">
+          📑 Certificados
+        </button>
+      </li>
+    </ul>
+  </aside>
+
+  <!-- Contenido principal -->
+  <main class="content">
+    <ng-container [ngSwitch]="vm.selectedSection">
+
+      <!-- Sección Empleados -->
+      <section *ngSwitchCase="SECTIONS.EMPLEADOS">
+        <h1>Gestión de Empleados</h1>
+        <p>Administra la información de los empleados.</p>
+
+        <form #empleadoForm="ngForm" (ngSubmit)="onSubmit()" class="empleado-form" novalidate>
+          <!-- Campos dinámicos -->
+          <div class="form-group" *ngFor="let campo of vm.camposFormulario">
+            <label [for]="campo.id">{{ campo.label }}</label>
+            <input
+              [id]="campo.id"
+              [name]="campo.id"
+              [(ngModel)]="vm.empleado[campo.id]"
+              required
+              #control="ngModel"
+              [type]="(campo.id === 'fechaInicio') ? 'date' : campo.id === 'correo' ? 'email' : 'text'"
+             />
+            <div class="error" *ngIf="control.invalid && control.touched">
+            <span *ngIf="control.errors?.['required']">Requerido</span>
+            <span *ngIf="campo.id === 'correo' && control.errors?.['email']">Correo inválido</span>
+          </div>
+          </div>
+
+          <!-- Campo Salario (input tipo text para editar sin formato automático) -->
+                  <div class="form-group">
+          <label for="salario">Salario</label>
+          <div class="input-error-wrapper">
+            <div class="input-container">
+              <input
+                id="salario"
+                name="salario"
+                type="number"
+                [(ngModel)]="vm.empleado.salario"
+                required
+                #salarioControl="ngModel"
+                (blur)="tocoCampoSalario = true"
+                placeholder="0"
+              />
+              <span class="signo-peso">$</span>
+            </div>
+              <div class="error" *ngIf="salarioControl.invalid && (salarioControl.touched || tocoCampoSalario)">
+                Requerido
+              </div>
+          </div>
+        </div>
+
+
+          <!-- Campo Cargo (select) -->
+          <div class="form-group">
+            <label for="cargo">Cargo</label>
+            <select
+              id="cargo"
+              name="cargo"
+              [(ngModel)]="vm.empleado.cargo"
+              required
+              #cargoControl="ngModel"
+            >
+              <option [ngValue]="''" disabled selected>Seleccione un cargo</option>
+              <option *ngFor="let cargo of vm.cargosDisponibles" [ngValue]="cargo">
+                {{ cargo }}
+              </option>
+            </select>
+            <div class="error" *ngIf="cargoControl.invalid && cargoControl.touched">
+              Requerido
+            </div>
+          </div>
+
+          <!-- Campo Tipo de Contrato (select) -->
+          <div class="form-group">
+            <label for="tipoContrato">Tipo de Contrato</label>
+            <select
+              id="tipoContrato"
+              name="tipoContrato"
+              [(ngModel)]="vm.empleado.tipoContrato"
+              required
+              #tipoContratoControl="ngModel"
+            >
+              <option [ngValue]="''" disabled selected>Seleccione un tipo de contrato</option>
+              <option *ngFor="let tipo of vm.tiposContratoDisponibles" [ngValue]="tipo">
+                {{ tipo }}
+              </option>
+            </select>
+            <div class="error" *ngIf="tipoContratoControl.invalid && tipoContratoControl.touched">
+              Requerido
+            </div>
+          </div>
+
+           <!-- Campo Fondo de Pensiones (select) -->
+          <div class="form-group">
+            <label for="fondoPensiones">Fondo de Pensiones</label>
+            <select
+              id="fondoPensiones"
+              name="fondoPensiones"
+              [(ngModel)]="vm.empleado.fondoPensiones"
+              required
+              #fondoPensionesControl="ngModel"
+            >
+              <option [ngValue]="''" disabled selected>Seleccione un fondo de pensiones</option>
+              <option *ngFor="let fondo of vm.fondosPensionesDisponibles" [ngValue]="fondo">
+                {{ fondo }}
+              </option>
+            </select>
+            <div class="error" *ngIf="fondoPensionesControl.invalid && fondoPensionesControl.touched">
+              Requerido
+            </div>
+          </div>
+
+          <!-- Campo Arl (select) -->
+          <div class="form-group">
+            <label for="arl">ARL</label>
+            <select
+              id="arl"
+              name="arl"
+              [(ngModel)]="vm.empleado.arl"
+              required
+              #arlControl="ngModel"
+            >
+              <option [ngValue]="''" disabled selected>Seleccione un ARL</option>
+              <option *ngFor="let arl of vm.arlsDisponibles" [ngValue]="arl">
+                {{ arl }}
+              </option>
+            </select>
+            <div class="error" *ngIf="arlControl.invalid && arlControl.touched">
+              Requerido
+            </div>
+          </div>
+
+          <!-- Campo Eps (select) -->
+          <div class="form-group">
+            <label for="eps">EPS</label>
+            <select
+              id="eps"
+              name="eps"
+              [(ngModel)]="vm.empleado.eps"
+              required
+              #epsControl="ngModel"
+            >
+              <option [ngValue]="''" disabled selected>Seleccione una EPS</option>
+              <option *ngFor="let eps of vm.epssDisponibles" [ngValue]="eps">
+                {{ eps }}
+              </option>
+            </select>
+            <div class="error" *ngIf="epsControl.invalid && epsControl.touched">
+              Requerido
+            </div>
+          </div>
+
+          <!-- Campo Caja de Compensacion (select) -->
+          <div class="form-group">
+            <label for="cajaCompensacion">Caja de Compensación</label>
+            <select
+              id="cajaCompensacion"
+              name="cajaCompensacion"
+              [(ngModel)]="vm.empleado.cajaCompensacion"
+              required
+              #cajaCompensacionControl="ngModel"
+            >
+              <option [ngValue]="''" disabled selected>Seleccione una caja de compensación</option>
+              <option *ngFor="let caja of vm.cajasCompensacionDisponibles" [ngValue]="caja">
+                {{ caja }}
+              </option>
+            </select>
+            <div class="error" *ngIf="cajaCompensacionControl.invalid && cajaCompensacionControl.touched">
+              Requerido
+            </div>
+          </div>
+
+                    <!-- Campo Fecha de Retiro (solo si está inactivo) -->
+          <div class="form-group resaltado" *ngIf="!vm.empleado.activo">
+            <label for="fechaRetiro">Fecha de Retiro</label>
+            <input
+              id="fechaRetiro"
+              name="fechaRetiro"
+              type="date"
+              [(ngModel)]="vm.empleado.fechaRetiro"
+              required
+              #fechaRetiroControl="ngModel"
+            />
+            <div class="error" *ngIf="fechaRetiroControl.invalid && fechaRetiroControl.touched">
+              Requerido
+            </div>
+          </div>
+
+          <!-- Campo Tipo Retiro (select) -->
+          <!-- Mostrar solo si el empleado está inactivo -->
+                <div class="form-group" *ngIf="vm.tiposRetiroDisponibles && !vm.empleado.activo">
+          <label for="tipoRetiro">Tipo de Retiro</label>
+          <select
+            id="tipoRetiro"
+            name="tipoRetiro"
+            [(ngModel)]="vm.empleado.tipoRetiro"
+            [required]="!vm.empleado.activo"
+            [attr.required]="!vm.empleado.activo ? '' : null"
+            #tipoRetiro="ngModel"
+          >
+            <option [ngValue]="" disabled selected>Seleccione un tipo de retiro</option>
+            <option *ngFor="let tipo of vm.tiposRetiroDisponibles" [ngValue]="tipo">
+              {{ tipo }}
+            </option>
+          </select>
+          <div class="error" *ngIf="tipoRetiro.invalid && tipoRetiro.touched">
+            Requerido
+          </div>
+        </div>
+
+          <!-- Botones -->
+          <div class="form-actions">
+            <button type="submit" [disabled]="empleadoForm.invalid">
+              {{ vm.isEditMode ? 'Actualizar' : 'Crear' }}
+            </button>
+            <button type="button" (click)="cancelarEdicion()">Cancelar</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Sección Certificados -->
+      <section *ngSwitchCase="SECTIONS.CERTIFICADOS">
+        <h1>Certificados Laborales</h1>
+        <p>Genera y envía certificados laborales a los empleados.</p>
+
+        <p *ngIf="!vm.empleados.length" class="no-empleados">
+          No hay empleados registrados.
+        </p>
+
+        <!-- Filtro -->
+        <div
+          class="filtro-busqueda"
+          *ngIf="vm.empleados.length > 0 || vm.empleadosFiltrados.length === 0 || vm.filtroCamposDisponibles.length > 0"
+        >
+          <label for="filtroCampo">Filtrar por:</label>
+          <select
+            id="filtroCampo"
+            [(ngModel)]="vm.filtroCampo"
+            name="filtroCampo"
+            (change)="onFiltroCambio()"
+          >
+            <option *ngFor="let campo of vm.filtroCamposDisponibles" [value]="campo">
+              {{ campo | titlecase }}
+            </option>
+          </select>
+
+          <input
+            type="text"
+            name="filtroValor"
+            [(ngModel)]="vm.filtroValor"
+            placeholder="Buscar..."
+            class="busqueda-input"
+            (input)="onFiltroCambio()"
+          />
+
+          <!-- Botones de estado -->
+          <button
+            type="button"
+            class="btn"
+            [ngClass]="{ activo: vm.estadoFiltro === 'activo' }"
+            (click)="toggleEstadoFiltro('activo')"
+          >
+            Activos
+          </button>
+
+          <button
+            type="button"
+            class="btn"
+            [ngClass]="{ activo: vm.estadoFiltro === 'inactivo' }"
+            (click)="toggleEstadoFiltro('inactivo')"
+          >
+            Inactivos
+          </button>
+
+          <button class= "excel" (click)="descargarExcel()">📥 Descargar Base de Datos en Excel</button>
+
+          <div class="carga-archivo">
+          <input type="file" (change)="onArchivoSeleccionado($event)" />
+            <button class="excel" (click)="subirArchivo()">📤 Cargar Base de Datos en Excel</button>
+            </div>
+        </div>
+
+        <!-- Tabla de empleados filtrados -->
+        <div class="tabla-con-scroll" *ngIf="vm.empleados.length > 0 || vm.empleadosFiltrados.length === 0">
+  <table class="tabla-empleados">
+    <thead>
+      <tr>
+        <th>Selecciona</th>
+        <th>Nombres</th>
+        <th>Apellidos</th>
+        <th>Cédula</th>
+        <th>Cargo</th>
+        <th>Salario</th>
+        <th>Fecha Inicio</th>
+        <th>Tipo Contrato</th>
+        <th>Correo</th>
+        <th>Fondo Pensiones</th>
+        <th>ARL</th>
+        <th>EPS</th>
+        <th>Caja Compensación</th>
+        <th>Tipo Retiro</th>
+        <th>Fecha Retiro</th>
+        <th>Estado</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngIf="vm.empleadosFiltrados.length === 0">
+        <td colspan="15" class="sin-resultados">No se encontraron empleados.</td>
+      </tr>
+      <tr
+        *ngFor="let emp of vm.empleadosFiltrados"
+        [class.selected]="emp === vm.empleadoSeleccionado"
+        (click)="seleccionarEmpleado(emp)"
+      >
+        <td><input type="radio" [checked]="emp === vm.empleadoSeleccionado" /></td>
+        <td>{{ emp.nombre }}</td>
+        <td>{{ emp.apellido }}</td>
+        <td>{{ emp.cedula }}</td>
+        <td>{{ emp.cargo }}</td>
+        <td>{{ emp.salario }}</td>
+        <td>{{ emp.fechaInicio }}</td>
+        <td>{{ emp.tipoContrato }}</td>
+        <td>{{ emp.correo }}</td>
+        <td>{{ emp.fondoPensiones }}</td>
+        <td>{{ emp.arl }}</td>
+        <td>{{ emp.eps }}</td>
+        <td>{{ emp.cajaCompensacion }}</td>
+        <td>{{ emp.tipoRetiro }}</td>
+        <td>{{ emp.fechaRetiro }}</td>
+        <td>
+          <span [class.estado-activo]="emp.activo" [class.estado-inactivo]="!emp.activo">
+            {{ emp.activo ? '🟢 Activo' : '🔴 Inactivo' }}
+          </span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+
+        <p *ngIf="vm.empleados.length > 0 && vm.empleadosFiltrados.length === 0" class="no-resultados">
+          No se encontraron empleados que coincidan con el filtro.
+        </p>
+
+        <!-- Paginación y conteo -->
+        <div class="footer-controls">
+          <div class="paginacion" *ngIf="vm.totalPaginas > 0">
+            <button (click)="cambiarPagina('anterior')" [disabled]="vm.paginaActual === 0">Anterior</button>
+
+            <button
+              *ngFor="let i of getPaginas()"
+              (click)="cambiarPagina(i)"
+              [class.activa]="i === vm.paginaActual"
+            >
+              {{ i + 1 }}
+            </button>
+
+            <button
+              (click)="cambiarPagina('siguiente')"
+              [disabled]="vm.paginaActual + 1 >= vm.totalPaginas"
+            >
+              Siguiente
+            </button>
+          </div>
+
+          <div class="contador-coincidencias" *ngIf="vm.empleados.length > 0">
+            Conteo: {{ vm.totalEmpleadosFiltrados }} coincidencias
+          </div>
+        </div>
+
+         <section class="formulario-certificado">
+          <select
+            id="tipoCertificado"
+            class="select-certificado"
+            [(ngModel)]="vm.tipoCertificado"
+            name="tipoCertificado"
+            required
+          >
+            <option value="" disabled selected>Selecciona el tipo de certificado</option>
+            <option
+              *ngFor="let tipo of vm.tiposCertificado"
+              [ngValue]="tipo.codigo"
+            >
+              {{ tipo.descripcion }}
+            </option>
+          </select>
+
+        <!-- Acciones sobre empleado seleccionado -->
+        <div class="acciones" *ngIf="vm.empleado">
+          <button class="btn generar" [disabled]="!vm.tipoCertificado" (click)="generarCertificado()">
+            📑 Generar certificado
+          </button>
+          <button class="btn enviar" [disabled]="!vm.tipoCertificado" (click)="enviarCertificadoPorCorreo()">
+            📧 Enviar por correo
+          </button>
+          <button class="btn editar" (click)="editarDesdeCertificados()">
+            ✏️ Editar
+          </button>
+          <button class="btn eliminar" (click)="eliminarDesdeCertificados()">
+            🗑️ Eliminar
+          </button>
+          <!-- Mostrar solo botón de inactivar si está activo -->
+     <!-- Inactivar -->
+      <button
+        class="btn inactivar"
+        *ngIf="vm.empleadoSeleccionado?.activo"
+        (click)="inactivarEmpleado(vm.empleadoSeleccionado!)"
+      >
+        ❌ Inactivar Empleado
+      </button>
+
+      <!-- Activar -->
+      <button
+        class="btn activar"
+        *ngIf="vm.empleadoSeleccionado && !vm.empleadoSeleccionado.activo"
+        (click)="activarEmpleado(vm.empleadoSeleccionado!)"
+      >
+        ✅ Activar Empleado
+      </button>
+        </div>
+        </section>
+        </section>
+
+                <div class="modal-carga" *ngIf="vm.cargando">
+          <div class="spinner"></div>
+          <p>Cargando...</p>
+        </div>
+    </ng-container>
+  </main>
+</div>
